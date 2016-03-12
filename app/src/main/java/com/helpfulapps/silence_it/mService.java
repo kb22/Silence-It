@@ -23,7 +23,7 @@ public class mService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this,"Hello",Toast.LENGTH_LONG).show();
+        //Toast.makeText(this,"Hello",Toast.LENGTH_LONG).show();
         final int id = 1234;
         Intent intenti = new Intent(this, MainActivity.class);
         intenti.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -32,11 +32,11 @@ public class mService extends Service {
 //Build the notification
         Notification.Builder builder = new Notification.Builder(getBaseContext());
         builder.setContentIntent(pendIntent);
-        builder.setTicker("message");
+        builder.setTicker("Service Started");
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(false);
-        builder.setContentTitle("Test Service");
-        builder.setContentText("message");
+        builder.setContentTitle("Silence It");
+        builder.setContentText("Touch to disable in Options");
 
         Notification notification = builder.build();
 
@@ -61,12 +61,10 @@ public class mService extends Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    //REST OF CODE HERE//
                 }
 
             }
         }).start();
-
         return flags;
     }
 
@@ -79,7 +77,10 @@ public class mService extends Service {
     public void onDestroy() {
         super.onDestroy();
         keeprunning = false;
-        Toast.makeText(this,"Bye",Toast.LENGTH_LONG).show();
+        AudioManager manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        manager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        //Toast.makeText(this,"Bye",Toast.LENGTH_LONG).show();
         Log.i("TAG", "Exit");
     }
+
 }

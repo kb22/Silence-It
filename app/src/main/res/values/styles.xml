@@ -7,5 +7,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:icon">@drawable/main_icon</item>
+        <item name="android:logo">@drawable/main_icon</item>
+    </style>
 
 </resources>

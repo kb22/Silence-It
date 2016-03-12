@@ -2,14 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.helpfulapps.silence_it">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/main_icon"
-        android:logo="@drawable/main_icon"
         android:label="@string/app_name"
+        android:logo="@drawable/main_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTask"
             android:logo="@drawable/main_icon">
             <intent-filter>
@@ -19,11 +22,24 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity_about">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
         <service
             android:name=".mService"
             android:enabled="true"
             android:exported="true"
-            android:process=":remote"></service>
+            android:process=":remote" />
+
+        <receiver
+            android:name=".MyReceiver"
+            android:enabled="false">
+            <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
