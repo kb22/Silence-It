@@ -17,13 +17,14 @@ import android.widget.Toast;
 
 public class mService extends Service {
 
+    boolean keeprunning = true;
     public mService() {
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("IN", "in");
-        /*final int id = 1234;
+        Toast.makeText(this,"Hello",Toast.LENGTH_LONG).show();
+        final int id = 1234;
         Intent intenti = new Intent(this, MainActivity.class);
         intenti.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendIntent = PendingIntent.getActivity(this, 0, intenti, 0);
@@ -42,15 +43,15 @@ public class mService extends Service {
 //start foreground service
         startForeground(id, notification);
 
-        Log.i("IN", "in");
+        Log.i("TAG", "Start");
         new Thread(new Runnable(){
             public void run() {
                 // TODO Auto-generated method stub
-                while(true)
+                while(true && keeprunning)
                 {
                     try {
                         AudioManager manager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                        Log.i("IN", "in");
+                        Log.i("TAG", "Middle");
                         if (manager.isMusicActive()) {
                             manager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
                         } else {
@@ -64,20 +65,21 @@ public class mService extends Service {
                 }
 
             }
-        }).start();*/
+        }).start();
 
         return flags;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return null;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("OUT", "out");
+        keeprunning = false;
+        Toast.makeText(this,"Bye",Toast.LENGTH_LONG).show();
+        Log.i("TAG", "Exit");
     }
 }

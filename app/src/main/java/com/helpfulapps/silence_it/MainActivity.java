@@ -18,8 +18,8 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     Switch switchAB ;
-    Intent intent = new Intent(MainActivity.this,
-            mService.class);;
+    /*Intent intent = new Intent(MainActivity.this,
+            mService.class);*/
     Switch swtService = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,21 +48,21 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = getSharedPreferences("silence", MODE_PRIVATE).edit();
                     editor.putBoolean("Switch-State", true);
                     editor.apply();
-                    startService(intent);
-                    Toast.makeText(getApplication(), "ON",
+                    startService(new Intent(MainActivity.this,mService.class));
+                    /*Toast.makeText(getApplication(), "ON",
 
                             Toast.LENGTH_SHORT)
-                            .show();
+                            .show();*/
 
                 } else {
                     SharedPreferences.Editor editor = getSharedPreferences("silence", MODE_PRIVATE).edit();
                     editor.putBoolean("Switch-State", false);
                     editor.apply();
-                    stopService(intent);
-                    Toast.makeText(getApplication(), "OFF",
+                    stopService(new Intent(MainActivity.this, mService.class));
+                    /*Toast.makeText(getApplication(), "OFF",
 
                             Toast.LENGTH_SHORT)
-                            .show();
+                            .show();*/
                 }
             }
         });
