@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton
 
-                                                 buttonView,
-                                         boolean isChecked) {
+                 buttonView,
+         boolean isChecked) {
                 if (isChecked) {
                     Log.i("TAG", "IsChecked");
                     SharedPreferences.Editor editor = getSharedPreferences("silence", MODE_PRIVATE).edit();
@@ -91,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         if (switchAB.isChecked() && !isMyServiceRunning(mService.class)) {
+            Intent intent2 = new Intent(MainActivity.this, mService.class);
+            Log.i("TAG", "RunAgain");
+            intent2.putExtra("Flag", true);
             Log.i("TAG", "RunAgain");
             startService(intent2);
         }

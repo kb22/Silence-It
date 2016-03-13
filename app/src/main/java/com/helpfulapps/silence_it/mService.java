@@ -37,7 +37,7 @@ public class mService extends Service {
             PendingIntent pendIntent = PendingIntent.getActivity(this, 0, intenti, 0);
 
 //Build the notification
-            Notification.Builder builder = new Notification.Builder(getBaseContext());
+            /*Notification.Builder builder = new Notification.Builder(getBaseContext());
             builder.setContentIntent(pendIntent);
             builder.setTicker("Service Started");
             builder.setWhen(System.currentTimeMillis());
@@ -49,7 +49,7 @@ public class mService extends Service {
             Notification notification = builder.build();
 
 //start foreground service
-            startForeground(id, notification);
+            startForeground(id, notification);*/
 
             Log.i("TAG", "Start");
             new Thread(new Runnable() {
@@ -64,7 +64,7 @@ public class mService extends Service {
                             } else {
                                 manager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                             }
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
