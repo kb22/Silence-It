@@ -24,24 +24,13 @@ public class MainActivity extends AppCompatActivity {
 
     Switch switchAB ;
     TextView tx;
-    final Intent intent2 = new Intent(MainActivity.this, mService.class);
-    /*Intent intent = new Intent(MainActivity.this,
-            mService.class);*/
     Switch swtService = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setIcon(R.mipmap.main_logo);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle("  Silence It");*/
-        //ActionBar mActionBar = getSupportActionBar();
-        //mActionBar.setIcon(R.drawable.main_icon);
-        //mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
-
+        Log.i("TAG", "OnCreate in Activity");
         tx = (TextView)findViewById(R.id.textView);
         tx.setMovementMethod(new ScrollingMovementMethod());
         swtService = (Switch)findViewById(R.id.myswitch);
@@ -53,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         switchAB = (Switch)menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchAB);
         SharedPreferences sharedPrefs = getSharedPreferences("silence", MODE_PRIVATE);
         switchAB.setChecked(sharedPrefs.getBoolean("Switch-State", false));
-        Log.i("TAG", "OnCreateMain");
+        Log.i("TAG", "OnCreateMenu in Activity");
         switchAB.setOnCheckedChangeListener(new
 
         CompoundButton.OnCheckedChangeListener() {
@@ -63,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                  buttonView,
          boolean isChecked) {
                 if (isChecked) {
-                    Log.i("TAG", "IsChecked");
+                    Log.i("TAG", "Switch On");
                     SharedPreferences.Editor editor = getSharedPreferences("silence", MODE_PRIVATE).edit();
                     editor.putBoolean("Switch-State", true);
                     editor.apply();
@@ -71,12 +60,9 @@ public class MainActivity extends AppCompatActivity {
                     ComponentName componentName = new ComponentName(MainActivity.this, MyReceiver.class);
                     pm.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                             PackageManager.DONT_KILL_APP);
-                    Intent intent2 = new Intent(MainActivity.this, mService.class);
-                    intent2.putExtra("Flag", true);
-                    startService(intent2);
-
+                    startService(new Intent(MainActivity.this, siService.class));
                 } else {
-                    Log.i("TAG", "IsNotChecked");
+                    Log.i("TAG", "Switch Off");
                     SharedPreferences.Editor editor = getSharedPreferences("silence", MODE_PRIVATE).edit();
                     editor.putBoolean("Switch-State", false);
                     editor.apply();
@@ -84,33 +70,12 @@ public class MainActivity extends AppCompatActivity {
                     ComponentName componentName = new ComponentName(MainActivity.this, MyReceiver.class);
                     pm.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                             PackageManager.DONT_KILL_APP);
-                    Intent intent2 = new Intent(MainActivity.this, mService.class);
-                    intent2.putExtra("Flag", false);
-                    startService(intent2);
+                    stopService(new Intent(MainActivity.this, siService.class));
                 }
             }
         });
-        if (switchAB.isChecked() && !isMyServiceRunning(mService.class)) {
-            Intent intent2 = new Intent(MainActivity.this, mService.class);
-            Log.i("TAG", "RunAgain");
-            intent2.putExtra("Flag", true);
-            Log.i("TAG", "RunAgain");
-            startService(intent2);
-        }
 
         return super.onCreateOptionsMenu(menu);
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("isMyServiceRunning?", true + "");
-                return true;
-            }
-        }
-        Log.i ("isMyServiceRunning?", false+"");
-        return false;
     }
 
     @Override
@@ -128,18 +93,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void onReceive(Context context, Intent intent) {
-        Intent serviceIntent = new Intent(context,mService.class);
-        startService(serviceIntent);
-    }
-
-    @Override
-    protected void onDestroy() {
-        stopService(intent2);
-        Log.i("TAG", "onDestroyMain");
-        super.onDestroy();
-
     }
 }

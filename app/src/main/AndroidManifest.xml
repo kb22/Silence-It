@@ -28,10 +28,9 @@
         </activity>
 
         <service
-            android:name=".mService"
+            android:name=".siService"
             android:enabled="true"
-            android:exported="true"
-            android:process=":remote" />
+            android:exported="true" />
 
         <receiver
             android:name=".MyReceiver"
@@ -41,14 +40,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".RestartServiceReciever"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="YouWillNeverKillMe" />
-            </intent-filter>
-        </receiver>
+
     </application>
 
 </manifest>

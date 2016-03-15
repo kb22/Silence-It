@@ -12,11 +12,7 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
-            Log.i("TAG", "BootCompleted");
-            Intent pushIntent = new Intent(context, mService.class);
-            Log.i("TAG", "BootCompleted2");
-            pushIntent.putExtra("Flag", true);
-            context.startService(pushIntent);
+            context.startService(new Intent(context, siService.class));
         }
     }
 }
