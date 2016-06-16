@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:background="#ffffff">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/text"
+            android:layout_centerHorizontal="true"
+            android:text="Whenever the music plays,\nthe notifications should be\ncompleted muted(Silence)\nor should vibration be enabled\nso that you get notified\nwith a vibration."/>
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rgroup"
+            android:layout_below="@+id/text"
+            android:layout_centerHorizontal="true">
+
+            <RadioButton
+                android:id="@+id/rbutton1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vibration" />
+
+            <RadioButton
+                android:id="@+id/rbutton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rbutton1"
+                android:text="Silent" />
+        </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rgroup"
+            android:layout_centerHorizontal="true"
+            android:text="OK" />
+    </RelativeLayout>
+
+</RelativeLayout>

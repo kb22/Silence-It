@@ -11,9 +11,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-/**
- * Created by Hp-user on 12-03-2016.
- */
 public class activity_about extends AppCompatActivity{
 
     protected void onCreate(Bundle savedInstanceState) {

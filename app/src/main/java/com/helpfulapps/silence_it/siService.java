@@ -15,117 +15,102 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by Hp-user on 16-03-2016.
- */
-public class siService extends Service{
+public class siService extends Service {
 
-    boolean notifyenabled, vibenabled;
+    //Variables
+    boolean notifyenabled, VibrationMode, SilentMode;
+    private int ringtype, flag = 1;
+    SharedPreferences sharedpreferences;
     boolean lastWasElse = false;
-    boolean bootedVibe;
     private AudioManager myAudioManager;
     public static final long NOTIFY_INTERVAL = 2000;
-    private Handler mHandler = new Handler();
-    private Timer mTimer = null;
+    private Handler handler = new Handler();
+    private Timer timer = null;
     private NotificationManager mNotificationManager;
-
 
     @Override
     public void onCreate() {
-        Log.i("TAG", "ONCreate Service");
-        myAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-
-        if (myAudioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE)  {
-            bootedVibe = true;
-        } else {
-            bootedVibe = false;
-        }
-
-        //Get preferences and check if persistent status bar notification is enabled
-        SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean notifyenabled = mySharedPreferences.getBoolean("notif_preference", false);
+        Log.i("TAG", "###### OnCreate Service ######");
+        myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        ringtype = myAudioManager.getRingerMode();
+        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //Checking for Notification
+        boolean notifyenabled = sharedpreferences.getBoolean("Notification", false);
 
         if (notifyenabled) {
-            //Don't Show notification
-        }
-        else{
-            //Show notification
-            //Notification notification = new Notification(R.drawable.main_icon, "Service Started", System.currentTimeMillis());
-
+            //Notification is present
+            Log.i("TAG", "Notification is Present");
+        } else {
+            //Create notification
+            Log.i("TAG", "Notification is Absent");
             Intent main = new Intent(this, MainActivity.class);
             main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendIntent = PendingIntent.getActivity(this, 0, main,  PendingIntent.FLAG_UPDATE_CURRENT);
-
-            //notification.setLatestEventInfo(this, "Silence it", "App is running", pendingIntent);
-
-            /*Intent intenti = new Intent(this, MainActivity.class);
-            intenti.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendIntent = PendingIntent.getActivity(this, 0, intenti, 0);*/
-
-            Resources r = getResources();
+            PendingIntent pendIntent = PendingIntent.getActivity(this, 0, main, PendingIntent.FLAG_UPDATE_CURRENT);
             Notification notification = new NotificationCompat.Builder(getBaseContext())
                     .setTicker("Start")
                     .setSmallIcon(R.drawable.main_icon)
-                    .setContentTitle("Silence it")
+                    .setContentTitle("Silence It")
                     .setContentText("Silence It is running.")
                     .setContentIntent(pendIntent)
                     .setAutoCancel(false)
                     .setOngoing(true)
                     .build();
-
             notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
             startForeground(1, notification);
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor.putBoolean("Notification", true);
+            editor.commit();
         }
 
-        Log.i("TAG", "mTimer");
-        if(mTimer != null) {
-            mTimer.cancel();
+        //Timer Setup
+        Log.i("TAG", "Timer");
+        if (timer != null) {
+            timer.cancel();
         } else {
 
-            mTimer = new Timer();
+            timer = new Timer();
         }
-        Log.i("TAG", "Schedule Timer");
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+        Log.i("TAG", "Will Schedule Timer Now");
+        timer.scheduleAtFixedRate(new TimerClass(), 0, NOTIFY_INTERVAL);
     }
 
 
-
-    class TimeDisplayTimerTask extends TimerTask {
+    class TimerClass extends TimerTask {
 
         @Override
         public void run() {
 
-            // run on another thread
-            mHandler.post(new Runnable() {
+            handler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    Log.i("TAG", "In new thread");
-                    //Check if music is playing
-                    if(myAudioManager.isMusicActive() == true) {
-                        Log.i("TAG", "Loop");
-                        //Music is playing, so set ringer to silent
-                        if(myAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-                        } else {
-                            myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    if (myAudioManager.isMusicActive() == true) {
+                        Log.i("TAG", "Music is Playing");
+                        if(flag == 1) {
+                            ringtype = myAudioManager.getRingerMode();
+                            flag = 0;
                         }
-                        //Manages the boolean so you can decide whether you prefer vibrate or default ringer while the service is running
-                        lastWasElse = false;
-                    } else if (!lastWasElse) {
-                        if(myAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-
-                        } else {
-                            if(bootedVibe) {
-
-                            } else {
+                        myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    } else if(flag == 0){
+                        Log.i("TAG", "Music stopped");
+                        switch (ringtype) {
+                            case 0:
+                                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                                break;
+                            case 1:
+                                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                                break;
+                            case 2:
                                 myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                            }
+                                break;
+
                         }
-                        lastWasElse = true;
+                        flag = 1;
                     }
                 }
             });
@@ -134,25 +119,26 @@ public class siService extends Service{
 
     @Override
     public void onDestroy() {
-        Log.i("TAG", "OnDestroy Sevice");
-        //Decide what needs to be canceled
-        SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        notifyenabled = mySharedPreferences.getBoolean("notif_preference", false);
-        boolean ringdef = mySharedPreferences.getBoolean("ringdef", false);
-
-        mTimer.cancel();
-
-        Log.i("TAG", "mTimer killed");
-        if(notifyenabled)
-        {
+        Log.i("TAG", "###### OnDestroy Service ######");
+        timer.cancel();
+        Log.i("TAG", "Cancelled Timer");
+        if (sharedpreferences.getBoolean("Notification", false)) {
             mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             mNotificationManager.cancel(1);
+            Log.i("TAG", "Notification Removed");
         }
-        //Return to default ringer, or just release control of the ringer settings?
-        if (ringdef) {
-            myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-        } else {
+        switch (ringtype) {
+            case 0:
+                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                break;
+            case 1:
+                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                break;
+            case 2:
+                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                break;
         }
+        Log.i("TAG", "Sound Mode Back to Original");
     }
 
     @Nullable
