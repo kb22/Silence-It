@@ -1,5 +1,6 @@
 package com.helpfulapps.silence_it;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,12 @@ public class activity_about extends AppCompatActivity{
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle("About");
+
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        onBackPressed();
+        return true;
 
     }
 }

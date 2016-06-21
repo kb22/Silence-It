@@ -1,7 +1,11 @@
 package com.helpfulapps.silence_it;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,31 +37,60 @@ public class MainActivity extends AppCompatActivity {
     public SharedPreferences sharedpreferences;
     private static final int REQUEST_CODE_PERMISSION = 1;
     String[] mPermission = {Manifest.permission.RECEIVE_BOOT_COMPLETED};
+    private int REQUEST_CODE = 0;
+    private DevicePolicyManager mDPM;
+    private ComponentName mAdminName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Log.i("TAG", "###### OnCreate in MainActivity ######");
         sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
-        // For Marshmallow and Above
-        try {
-            Log.i("TAG", "Getting Permissions");
-            if (ActivityCompat.checkSelfPermission(this, mPermission[0])
-                    != MockPackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        mPermission, REQUEST_CODE_PERMISSION);
+
+        try
+        {
+            Log.i("TAG", "Taking Admin Rights");
+            mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+            mAdminName = new ComponentName(this, AdminAccess.class);
+            if (!mDPM.isAdminActive(mAdminName)) {
+                Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminName);
+                intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Click on Activate Button.");
+                startActivityForResult(intent,REQUEST_CODE);
             }
-        } catch (Exception e) {
-            Log.i("TAG", "Error in getting Permissions");
-            Log.e("TAG", "Error in getting Permissions: " + e.toString());
+            else
+            {
+                mDPM.lockNow();
+            }
+        } catch (Exception e)
+        {
+            Log.i("TAG", "ERROR in Taking Admin Rights: " + e.toString());
+            Log.e("TAG", "ERROR in Taking Admin Rights: " + e.toString());
         }
 
-        Log.i("TAG", "After Getting permissions");
+        if (sharedpreferences.getBoolean("First Install", true)) {
+            Log.i("TAG", "Runnung for First Time");
+            sharedpreferences.edit().putBoolean("First Install", false).commit();
+        }else{
+            Log.i("TAG", "Must have been Updated");
+            if(sharedpreferences.getBoolean("Switch-State", false) == true){
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putBoolean("Notification", false);
+                editor.putBoolean("Flag", false);
+                editor.commit();
+                startService(new Intent(MainActivity.this, siService.class));
+            }else{
+                stopService(new Intent(MainActivity.this, siService.class));
+            }
+        }
+        Log.i("TAG", "After Getting All Permissions and Rights");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i("TAG", "###### OnCreateMenu in MainActivity ######");
         getMenuInflater().inflate(R.menu.menu_main, menu);
         switchAB = (Switch)menu.findItem(R.id.myswitch).getActionView().findViewById(R.id.switchAB);
         sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
@@ -67,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         }else{
             switchAB.setChecked(false);
         }
-        Log.i("TAG", "###### OnCreateMenu in MainActivity ######");
+
         //Change listener added to Switch
         switchAB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -77,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     //The switch is turned on
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.putBoolean("Switch-State", true);
+                    editor.putBoolean("Flag",true);
                     editor.commit();
                     //Start the Background Service
                     PackageManager pm = MainActivity.this.getPackageManager();
@@ -89,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
                     //The switch is turned off
                     SharedPreferences.Editor editor = sharedpreferences.edit();
                     editor.putBoolean("Switch-State", false);
+                    editor.putBoolean("Notification", false);
+                    editor.putBoolean("Flag", false);
                     editor.commit();
                     //Stop the Background Service
                     PackageManager pm = MainActivity.this.getPackageManager();
@@ -109,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId())
         {
             case R.id.menu_settings:
-                //Sett Activity in case About is pressed
+                //Sett Activity in case about is pressed
                 Log.i("TAG", "Settings Activity Opened");
                 Intent intent = new Intent(this,Settings.class);
                 startActivity(intent);
@@ -137,4 +173,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+    mAdminName = new ComponentName(this, AdminAccess.class);
+    if(mDPM.isAdminActive(mAdminName)){
+        Log.i("TAG", "Admin Access Granted");
+        Toast.makeText(MainActivity.this, "Admin Access Granted.", Toast.LENGTH_LONG).show();
+    }else{
+        Log.i("TAG", "Admin Access Denied");
+        Toast.makeText(MainActivity.this, "Admin Access Denied.", Toast.LENGTH_LONG).show();
+        switchAB.setChecked(false);
+        finish();
+    }
+}
 }

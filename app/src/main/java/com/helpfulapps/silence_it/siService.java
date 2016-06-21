@@ -8,13 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.Timer;
@@ -38,7 +43,7 @@ public class siService extends Service {
         Log.i("TAG", "###### OnCreate Service ######");
         myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         ringtype = myAudioManager.getRingerMode();
-        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
         //Checking for Notification
         boolean notifyenabled = sharedpreferences.getBoolean("Notification", false);
 
@@ -51,15 +56,32 @@ public class siService extends Service {
             Intent main = new Intent(this, MainActivity.class);
             main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendIntent = PendingIntent.getActivity(this, 0, main, PendingIntent.FLAG_UPDATE_CURRENT);
+            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.drawable.main_logo);
             Notification notification = new NotificationCompat.Builder(getBaseContext())
-                    .setTicker("Start")
-                    .setSmallIcon(R.drawable.main_icon)
+                    .setTicker("Starting Service")
+                    .setSmallIcon(R.drawable.main_logo)
+                    .setLargeIcon(bitmap)
                     .setContentTitle("Silence It")
                     .setContentText("Silence It is running.")
                     .setContentIntent(pendIntent)
                     .setAutoCancel(false)
                     .setOngoing(true)
+                    .setColor(getResources().getColor(R.color.notificationBackground))
                     .build();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                int smallIconViewId = getResources().getIdentifier("right_icon", "id", android.R.class.getPackage().getName());
+
+                if (smallIconViewId != 0) {
+                    if (notification.contentIntent != null)
+                        notification.contentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+
+                    if (notification.headsUpContentView != null)
+                        notification.headsUpContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+
+                    if (notification.bigContentView != null)
+                        notification.bigContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
+                }
+            }
             notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
             startForeground(1, notification);
             SharedPreferences.Editor editor = sharedpreferences.edit();
@@ -89,14 +111,19 @@ public class siService extends Service {
 
                 @Override
                 public void run() {
+                    sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
                     if (myAudioManager.isMusicActive() == true) {
                         Log.i("TAG", "Music is Playing");
-                        if(flag == 1) {
+                        if(sharedpreferences.getBoolean("Flag", false)) {
                             ringtype = myAudioManager.getRingerMode();
-                            flag = 0;
+                            SharedPreferences.Editor editor = sharedpreferences.edit();
+                            editor.putBoolean("Flag", false);
+                            editor.commit();
                         }
-                        myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-                    } else if(flag == 0){
+                        if(sharedpreferences.getBoolean("Silence", false))
+                            myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        else myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                    } else if(sharedpreferences.getBoolean("Flag", false) == false){
                         Log.i("TAG", "Music stopped");
                         switch (ringtype) {
                             case 0:
@@ -110,7 +137,9 @@ public class siService extends Service {
                                 break;
 
                         }
-                        flag = 1;
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putBoolean("Flag", true);
+                        editor.commit();
                     }
                 }
             });
@@ -138,6 +167,9 @@ public class siService extends Service {
                 myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                 break;
         }
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putBoolean("Flag", false);
+        editor.commit();
         Log.i("TAG", "Sound Mode Back to Original");
     }
 

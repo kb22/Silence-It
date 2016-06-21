@@ -14,11 +14,16 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i("TAG", "###### Reboot Activity ######");
+        sharedpreferences = context.getSharedPreferences("Switch", Context.MODE_PRIVATE);
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             //After Boot Completes activity begins again if it was already on
             if(sharedpreferences.getBoolean("Switch-State", false) == true) {
                 //Switch was on
                 Log.i("TAG", "Service Started After Boot");
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putBoolean("Notification", false);
+                editor.putBoolean("Flag", false);
+                editor.commit();
                 context.startService(new Intent(context, siService.class));
             }else{
                 //Switch was off
