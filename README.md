@@ -8,3 +8,5 @@ It is still in its development stage, send in bug reports if you find any.
 
 Developer:
 Karan Bhanot
+
+![](https://github.com/kb22/Silence-It/app/src/main/res/drawable/main_icon.png)
