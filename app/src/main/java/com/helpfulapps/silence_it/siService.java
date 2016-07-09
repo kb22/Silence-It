@@ -44,50 +44,6 @@ public class siService extends Service {
         myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         ringtype = myAudioManager.getRingerMode();
         sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
-        //Checking for Notification
-        boolean notifyenabled = sharedpreferences.getBoolean("Notification", false);
-
-        if (notifyenabled) {
-            //Notification is present
-            Log.i("TAG", "Notification is Present");
-        } else {
-            //Create notification
-            Log.i("TAG", "Notification is Absent");
-            Intent main = new Intent(this, MainActivity.class);
-            main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendIntent = PendingIntent.getActivity(this, 0, main, PendingIntent.FLAG_UPDATE_CURRENT);
-            Bitmap bitmap = BitmapFactory.decodeResource( getResources(), R.drawable.main_logo);
-            Notification notification = new NotificationCompat.Builder(getBaseContext())
-                    .setTicker("Starting Service")
-                    .setSmallIcon(R.drawable.main_logo)
-                    .setLargeIcon(bitmap)
-                    .setContentTitle("Silence It")
-                    .setContentText("Silence It is running.")
-                    .setContentIntent(pendIntent)
-                    .setAutoCancel(false)
-                    .setOngoing(true)
-                    .setColor(getResources().getColor(R.color.notificationBackground))
-                    .build();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                int smallIconViewId = getResources().getIdentifier("right_icon", "id", android.R.class.getPackage().getName());
-
-                if (smallIconViewId != 0) {
-                    if (notification.contentIntent != null)
-                        notification.contentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
-
-                    if (notification.headsUpContentView != null)
-                        notification.headsUpContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
-
-                    if (notification.bigContentView != null)
-                        notification.bigContentView.setViewVisibility(smallIconViewId, View.INVISIBLE);
-                }
-            }
-            notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
-            startForeground(1, notification);
-            SharedPreferences.Editor editor = sharedpreferences.edit();
-            editor.putBoolean("Notification", true);
-            editor.commit();
-        }
 
         //Timer Setup
         Log.i("TAG", "Timer");
@@ -112,7 +68,7 @@ public class siService extends Service {
                 @Override
                 public void run() {
                     sharedpreferences = getSharedPreferences("Switch", MODE_PRIVATE);
-                    if (myAudioManager.isMusicActive() == true) {
+                    if (myAudioManager.isMusicActive()) {
                         Log.i("TAG", "Music is Playing");
                         if(sharedpreferences.getBoolean("Flag", false)) {
                             ringtype = myAudioManager.getRingerMode();
@@ -123,7 +79,7 @@ public class siService extends Service {
                         if(sharedpreferences.getBoolean("Silence", false))
                             myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                         else myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-                    } else if(sharedpreferences.getBoolean("Flag", false) == false){
+                    } else if(!sharedpreferences.getBoolean("Flag", false)){
                         Log.i("TAG", "Music stopped");
                         switch (ringtype) {
                             case 0:
@@ -151,11 +107,6 @@ public class siService extends Service {
         Log.i("TAG", "###### OnDestroy Service ######");
         timer.cancel();
         Log.i("TAG", "Cancelled Timer");
-        if (sharedpreferences.getBoolean("Notification", false)) {
-            mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mNotificationManager.cancel(1);
-            Log.i("TAG", "Notification Removed");
-        }
         switch (ringtype) {
             case 0:
                 myAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
@@ -164,6 +115,9 @@ public class siService extends Service {
                 myAudioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
                 break;
             case 2:
+                myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                break;
+            default:
                 myAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                 break;
         }

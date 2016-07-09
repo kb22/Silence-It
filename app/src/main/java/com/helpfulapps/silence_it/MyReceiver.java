@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.util.Log;
 
 public class MyReceiver extends BroadcastReceiver {
     public SharedPreferences sharedpreferences;
+    private AudioManager myAudioManager;
     public MyReceiver() {
     }
 
@@ -21,7 +23,6 @@ public class MyReceiver extends BroadcastReceiver {
                 //Switch was on
                 Log.i("TAG", "Service Started After Boot");
                 SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.putBoolean("Notification", false);
                 editor.putBoolean("Flag", false);
                 editor.commit();
                 context.startService(new Intent(context, siService.class));

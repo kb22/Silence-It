@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             if(sharedpreferences.getBoolean("Switch-State", false) == true){
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putBoolean("Notification", false);
-                editor.putBoolean("Flag", false);
+                //editor.putBoolean("Flag", false);
                 editor.commit();
                 startService(new Intent(MainActivity.this, siService.class));
             }else{
@@ -167,8 +167,8 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 //Create Snacker if permission was denied.
                 Log.i("TAG", "Permission Denied");
-                Snackbar.make(findViewById(R.id.main),"Permissions were denied.",Snackbar.LENGTH_LONG).show();
-                //Toast.makeText(MainActivity.this, "Permissions were denied.", Toast.LENGTH_SHORT).show();
+                //Snackbar.make(findViewById(R.id.main),"Permissions were denied.",Snackbar.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Permissions were denied.", Toast.LENGTH_SHORT).show();
             }
         }
 
