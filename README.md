@@ -6,9 +6,8 @@ The application is designed to aid your music experience. We all have experience
 It is still in its development stage, send in bug reports if you find any.
 
 
-**Developed By:**
-Karan Bhanot
-bhanotkaran22@gmail.com
-+91-8054340977
+**Developed By:** Karan Bhanot
+**Email:** bhanotkaran22@gmail.com
+**Contact:** +91-8054340977
 
 ![](https://github.com/kb22/Silence-It/blob/master/app/src/main/res/drawable/main_icon.png)
