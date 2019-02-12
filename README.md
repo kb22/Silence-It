@@ -1,13 +1,15 @@
 # Silence-It
-Android Application
+### Android Application for music lovers
 
-The application is designed to aid your music experience. We all have experienced that while listening to our favourite song, a notifiation comes and mutes our music. This is annoying. To solve this issue, I designed this application.
+<img src="https://github.com/kb22/Silence-It/blob/master/app/src/main/res/drawable/main_icon.png" width="100px" height="100px">
 
-It is still in its development stage, send in bug reports if you find any.
+The application is designed to aid your music experience. While listening to music, whenever a new notifiation comes, it mutes our music and can be annoying. The application resolves this problem. When music is playing and this application is running, it ensures that the notifications are silenced. Once music stops, it reverts the sound mode to normal.
 
-***
-* **Developed By:** Karan Bhanot
-* **Email:** bhanotkaran22@gmail.com
-* **Contact:** +91-8054340977
+## Using the application
 
-![](https://github.com/kb22/Silence-It/blob/master/app/src/main/res/drawable/main_icon.png)
+1. Download the APK.
+2. Transfer it to your Android device.
+3. Navigate to the APK inside yout device's file explorer.
+4. Open the APK.
+5. If permission is needed, then allow so that the application can be installed.
+6. Once installed, start the application and turn it on.
