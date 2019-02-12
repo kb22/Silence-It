@@ -7,9 +7,9 @@ The application is designed to aid your music experience. While listening to mus
 
 ## Setup
 
-1. Download the project.
+1. Download the project
 2. Open the project in [Android Studio](https://developer.android.com/studio/)
-3. Build the APK and use it
+3. Build the APK or build more features into the application as needed
 
 ## Using the application
 
